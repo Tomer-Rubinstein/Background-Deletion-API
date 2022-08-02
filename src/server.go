@@ -160,12 +160,19 @@ func WriteContentToFile(content []byte, filename string) int {
 func rembg(filename string) (int, []byte) {
   err := exec.Command("rembg", "i", "../tmp/"+filename, "../tmp/output_"+filename).Run()
   isError(err)
-  
+
   newFileData := make([]byte, 16000000) // allocate 16MB of memory for the output image
   f, err := os.Open("../tmp/output_"+filename)
   isError(err)
 
   n, err := f.Read(newFileData)
+  isError(err)
+  defer f.Close()
+
+  /* delete the I/O files from /tmp */
+  err = os.Remove("../tmp/"+filename)
+  isError(err)
+  err = os.Remove("../tmp/output_"+filename)
   isError(err)
 
   return n, newFileData
